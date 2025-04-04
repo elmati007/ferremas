@@ -1,0 +1,34 @@
+body {
+    font-family: Arial, sans-serif;
+    background: url('img/fondo_madera.jpg') center/cover no-repeat fixed;
+    color: white;
+}
+
+.hero {
+    background: rgba(0, 0, 0, 0.5);
+    height: 60vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+}
+
+.navbar {
+    background: rgba(0, 0, 0, 0.8) !important;
+}
+
+.card {
+    transition: transform 0.3s;
+    background: rgba(255, 255, 255, 0.9);
+    color: black;
+}
+
+.card:hover {
+    transform: scale(1.05);
+}
+
+section h2 {
+    color: white;
+    text-align: center;
+}
