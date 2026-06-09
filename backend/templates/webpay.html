@@ -58,12 +58,55 @@
                 </div>
 
                 {% if pedido['estado'] == 'Pago Pendiente' %}
-                <form method="POST" action="{{ url_for('webpay', pedido_id=pedido['id']) }}">
-                    <div class="d-flex gap-2 flex-column flex-md-row">
-                        <button type="submit" name="accion" value="aprobar" class="btn btn-success w-100">Aprobar Pago</button>
-                        <button type="submit" name="accion" value="rechazar" class="btn btn-danger w-100">Rechazar Pago</button>
-                    </div>
-                </form>
+
+<div id="paypal-button-container" class="mb-3"></div>
+
+<form id="paypal-success-form"
+      method="POST"
+      action="{{ url_for('webpay', pedido_id=pedido['id']) }}"
+      style="display:none;">
+    <input type="hidden" name="accion" value="aprobar">
+</form>
+
+<div class="mt-3">
+    <form method="POST" action="{{ url_for('webpay', pedido_id=pedido['id']) }}">
+        <button type="submit"
+                name="accion"
+                value="rechazar"
+                class="btn btn-danger w-100">
+            Rechazar Pago
+        </button>
+    </form>
+</div>
+
+<script src="https://www.paypal.com/sdk/js?client-id=Afba0PKSXZrHx0ClCFBL0Roy_x0uAcfE3j2r8WC-3Isd4VcXbfnS0te2hlgmXk8KENEB5zS0ElSLLiYE&currency=USD"></script>
+
+<script>
+paypal.Buttons({
+
+    createOrder: function(data, actions) {
+        return actions.order.create({
+            purchase_units: [{
+                amount: {
+                    value: "{{ pedido['total'] }}"
+                }
+            }]
+        });
+    },
+
+    onApprove: function(data, actions) {
+        return actions.order.capture().then(function(details) {
+            document.getElementById('paypal-success-form').submit();
+        });
+    },
+
+    onError: function(err) {
+        console.error(err);
+        alert("Error al procesar el pago con PayPal");
+    }
+
+}).render('#paypal-button-container');
+</script>
                 {% else %}
                 <div class="alert alert-secondary" role="alert">
                     <p class="mb-2">Este pedido ya fue procesado en la simulación de pago.</p>
