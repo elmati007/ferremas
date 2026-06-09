@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Registro - FERREMAS{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">Registro de Cliente</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre completo</label>
+                        <input type="text" class="form-control" name="nombre" id="nombre" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <input type="email" class="form-control" name="email" id="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Nombre de usuario</label>
+                        <input type="text" class="form-control" name="username" id="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" name="password" id="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Crear cuenta</button>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                ¿Ya tienes cuenta? <a href="{{ url_for('login') }}">Inicia sesión</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

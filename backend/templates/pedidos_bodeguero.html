@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Pedidos Bodeguero - FERREMAS{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-secondary text-white">
+        <h3 class="mb-0">Pedidos para preparar</h3>
+    </div>
+    <div class="card-body">
+        {% if pedidos %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th># Pedido</th>
+                            <th>Cliente</th>
+                            <th>Estado</th>
+                            <th>Total</th>
+                            <th>Creado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pedido in pedidos %}
+                        <tr>
+                            <td>{{ pedido['id'] }}</td>
+                            <td>{{ pedido['cliente_nombre'] }}</td>
+                            <td><span class="badge bg-{{ order_status_badge(pedido['estado']) }}">{{ pedido['estado'] }}</span></td>
+                            <td>${{ pedido['total'] }}</td>
+                            <td>{% if pedido['creado_en'] %}{{ pedido['creado_en'] }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                            <td class="d-flex gap-2 flex-wrap">
+                                <a href="{{ url_for('pedido_detalle', pedido_id=pedido['id']) }}" class="btn btn-sm btn-outline-primary">Ver</a>
+                                {% if pedido['estado'] == 'Aprobado' %}
+                                    <form action="{{ url_for('accion_bodega', pedido_id=pedido['id']) }}" method="POST" class="d-inline">
+                                        <button name="accion" value="preparar" class="btn btn-sm btn-info">Preparar</button>
+                                    </form>
+                                {% elif pedido['estado'] == 'Preparando' %}
+                                    <form action="{{ url_for('accion_bodega', pedido_id=pedido['id']) }}" method="POST" class="d-inline">
+                                        <button name="accion" value="despachar" class="btn btn-sm btn-secondary">Despachar</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <p class="fs-5">No hay pedidos listos para preparar.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

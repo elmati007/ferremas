@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% block title %}Detalle Pedido #{{ pedido['id'] }} - FERREMAS{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <div class="d-flex justify-content-between align-items-center flex-column flex-md-row gap-3">
+            <div>
+                <h3 class="mb-0">Pedido #{{ pedido['id'] }}</h3>
+                <small>Cliente: {{ pedido['cliente_nombre'] }} ({{ pedido['cliente_usuario'] }})</small>
+            </div>
+            <div>
+                <span class="badge bg-{{ order_status_badge(pedido['estado']) }} fs-6">{{ pedido['estado'] }}</span>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="row gy-3">
+            <div class="col-md-4">
+                <div class="card p-3 border-secondary">
+                    <h6>Resumen</h6>
+                    <p class="mb-1"><strong>Total:</strong> ${{ pedido['total'] }}</p>
+                    <p class="mb-1"><strong>Pagado:</strong>
+                        {% if pedido['pago_confirmado'] %}
+                            <span class="badge bg-success">Sí</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">No</span>
+                        {% endif %}
+                    </p>
+                    <p class="mb-1"><strong>Creado:</strong> {% if pedido['creado_en'] %}{{ pedido['creado_en'] }}{% else %}<span class="text-muted">Procesando...</span>{% endif %}</p>
+                    <p class="mb-0"><strong>Última actualización:</strong> {% if pedido['actualizado_en'] %}{{ pedido['actualizado_en'] }}{% else %}<span class="text-muted">-</span>{% endif %}</p>
+                </div>
+            </div>
+            <div class="col-md-8">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if item['imagen'] %}
+                                            <img src="{{ url_for('static', filename='img/' + item['imagen']) }}" class="rounded" style="width: 60px; height: 60px; object-fit: cover;" alt="{{ item['nombre'] }}">
+                                        {% endif %}
+                                        <div>
+                                            <strong>{{ item['nombre'] }}</strong>
+                                            <div class="text-muted">{{ item['descripcion'] }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>${{ item['precio'] }}</td>
+                                <td>{{ item['cantidad'] }}</td>
+                                <td>${{ item['subtotal'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            {% if current_role == 'vendedor' and pedido['estado'] == 'Pendiente' %}
+                <form action="{{ url_for('accion_vendedor', pedido_id=pedido['id']) }}" method="POST" class="d-flex gap-2 flex-wrap">
+                    <button name="accion" value="aprobar" class="btn btn-success">Aprobar pedido</button>
+                    <button name="accion" value="rechazar" class="btn btn-danger">Rechazar pedido</button>
+                </form>
+            {% elif current_role == 'bodeguero' and pedido['estado'] == 'Aprobado' %}
+                <form action="{{ url_for('accion_bodega', pedido_id=pedido['id']) }}" method="POST">
+                    <button name="accion" value="preparar" class="btn btn-info">Marcar como preparando</button>
+                </form>
+            {% elif current_role == 'bodeguero' and pedido['estado'] == 'Preparando' %}
+                <form action="{{ url_for('accion_bodega', pedido_id=pedido['id']) }}" method="POST">
+                    <button name="accion" value="despachar" class="btn btn-secondary">Marcar como despachado</button>
+                </form>
+            {% elif current_role == 'contador' and pedido['estado'] == 'Aprobado' and not pedido['pago_confirmado'] %}
+                <form action="{{ url_for('confirmar_pago', pedido_id=pedido['id']) }}" method="POST">
+                    <button type="submit" class="btn btn-warning">Confirmar pago</button>
+                </form>
+            {% elif current_role == 'cliente' and pedido['estado'] == 'Despachado' %}
+                <form action="{{ url_for('marcar_entregado', pedido_id=pedido['id']) }}" method="POST">
+                    <button type="submit" class="btn btn-success">Confirmar entrega</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

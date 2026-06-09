@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Panel Cliente - FERREMAS{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="card-title">Bienvenido, {{ current_name }}</h2>
+        <p class="card-text">Esta es tu zona de cliente. Explora nuestros productos, agrega artículos al carrito y realiza tus compras con tranquilidad.</p>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ url_for('home') }}" class="btn btn-primary">Ver productos</a>
+            <a href="{{ url_for('carrito') }}" class="btn btn-outline-primary">Ver carrito</a>
+            <a href="{{ url_for('mis_pedidos') }}" class="btn btn-outline-success">Historial de pedidos</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

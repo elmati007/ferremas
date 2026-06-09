@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Contador - FERREMAS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="h2 d-flex align-items-center">
+            <i class="bi bi-calculator me-3" style="font-size: 2rem;"></i>
+            Dashboard Financiero
+        </h1>
+        <p class="text-muted">Bienvenido, {{ current_name }}</p>
+    </div>
+
+    <!-- KPI Cards Financieros -->
+    <div class="row mb-4">
+        <!-- Card Total Ingresos -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #28a745;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Total Ingresos</p>
+                            <h3 class="card-title text-success fw-bold">${{ total_ingresos|int }}</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-cash-coin text-success" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Todos los pagos confirmados</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Pagos Pendientes -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ffc107;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Pagos Pendientes</p>
+                            <h3 class="card-title text-warning fw-bold">${{ pagos_pendientes|int }}</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-exclamation-circle text-warning" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Monto a cobrar</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Pedidos Pagados Hoy -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #007bff;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Confirmados Hoy</p>
+                            <h3 class="card-title text-primary fw-bold">{{ pedidos_pagados_hoy|length }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-check-circle text-primary" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Pagos confirmados</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Ingresos Hoy -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #6f42c1;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Ingresos Hoy</p>
+                            <h3 class="card-title text-primary fw-bold">${{ ingresos_hoy|int }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-graph-up-arrow text-primary" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Ingreso del día</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Pedidos Aprobados - Pendientes de Pago -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-table me-2"></i>Pedidos Aprobados - Pendientes de Pago
+                </h5>
+                <span class="badge bg-warning text-dark">{{ pedidos_pendientes|length }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if pedidos_pendientes %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-nowrap">#Pedido</th>
+                                <th class="text-nowrap">Cliente</th>
+                                <th class="text-nowrap">Monto</th>
+                                <th class="text-nowrap">Método Pago</th>
+                                <th class="text-nowrap">Estado Pago</th>
+                                <th class="text-nowrap">Fecha Orden</th>
+                                <th class="text-nowrap">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in pedidos_pendientes %}
+                            <tr>
+                                <td class="text-nowrap fw-bold">#{{ pedido['id'] }}</td>
+                                <td class="text-nowrap">{{ pedido['cliente_nombre'] }}</td>
+                                <td class="text-nowrap fw-bold">${{ pedido['total']|int }}</td>
+                                <td class="text-nowrap">
+                                    <span class="badge bg-secondary">{{ pedido['metodo_pago'] }}</span>
+                                </td>
+                                <td class="text-nowrap">
+                                    {% if pedido['pago_confirmado'] == 1 %}
+                                        <span class="badge bg-success">
+                                            <i class="bi bi-check-circle-fill"></i> Confirmado
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock-fill"></i> Pendiente
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-nowrap text-muted small">{{ pedido['creado_en'][:10] }}</td>
+                                <td class="text-nowrap">
+                                    <div class="btn-group" role="group">
+                                        <!-- Ver Detalle -->
+                                        <a href="{{ url_for('pedido_detalle', pedido_id=pedido['id']) }}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        
+                                        <!-- Confirmar Pago -->
+                                        {% if pedido['pago_confirmado'] == 0 %}
+                                        <form method="POST" action="{{ url_for('confirmar_pago', pedido_id=pedido['id']) }}" 
+                                              class="d-inline" 
+                                              onsubmit="return confirm('¿Confirmar pago de este pedido?');">
+                                            <button type="submit" class="btn btn-sm btn-success" title="Confirmar pago">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <button type="button" class="btn btn-sm btn-success disabled" title="Pago confirmado">
+                                            <i class="bi bi-check-circle-fill"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-5 text-center">
+                    <i class="bi bi-check-circle text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3 mb-0">No hay pedidos pendientes de pago</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tabla de Pagos Confirmados Hoy -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-check-all me-2"></i>Pagos Confirmados Hoy
+                </h5>
+                <span class="badge bg-success">{{ pedidos_pagados_hoy|length }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if pedidos_pagados_hoy %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-nowrap">#Pedido</th>
+                                <th class="text-nowrap">Cliente</th>
+                                <th class="text-nowrap">Monto</th>
+                                <th class="text-nowrap">Método Pago</th>
+                                <th class="text-nowrap">Estado Actual</th>
+                                <th class="text-nowrap">Confirmado</th>
+                                <th class="text-nowrap">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in pedidos_pagados_hoy %}
+                            <tr class="table-success">
+                                <td class="text-nowrap fw-bold">#{{ pedido['id'] }}</td>
+                                <td class="text-nowrap">{{ pedido['cliente_nombre'] }}</td>
+                                <td class="text-nowrap fw-bold">${{ pedido['total']|int }}</td>
+                                <td class="text-nowrap">
+                                    <span class="badge bg-secondary">{{ pedido['metodo_pago'] }}</span>
+                                </td>
+                                <td class="text-nowrap">
+                                    <span class="badge bg-primary">{{ pedido['estado'] }}</span>
+                                </td>
+                                <td class="text-nowrap">
+                                    <i class="bi bi-check-circle-fill text-success"></i>
+                                </td>
+                                <td class="text-nowrap">
+                                    <a href="{{ url_for('pedido_detalle', pedido_id=pedido['id']) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-5 text-center">
+                    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3 mb-0">No hay pagos confirmados hoy</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- CSS para iconos Bootstrap -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<style>
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .btn-group {
+        display: flex;
+        gap: 0.25rem;
+    }
+</style>
+{% endblock %}

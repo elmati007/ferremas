@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar sesión - FERREMAS{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Iniciar sesión</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('login') }}">
+                    <div class="mb-3">
+                        <label for="identifier" class="form-label">Usuario o correo</label>
+                        <input type="text" class="form-control" name="identifier" id="identifier" placeholder="usuario o correo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Contraseña" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                ¿No tienes cuenta? <a href="{{ url_for('register') }}">Regístrate</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

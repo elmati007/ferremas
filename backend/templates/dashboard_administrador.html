@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Panel Administrador - FERREMAS{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="card-title">Panel de Administrador</h2>
+                <p class="card-text">Gestiona productos, crea cuentas para empleados y supervisa el estado general de la tienda.</p>
+                <a href="{{ url_for('admin') }}" class="btn btn-primary">Ir al panel administrativo</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

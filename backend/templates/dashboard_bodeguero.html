@@ -1,0 +1,329 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Bodeguero - FERREMAS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="h2 d-flex align-items-center">
+            <i class="bi bi-boxes me-3" style="font-size: 2rem;"></i>
+            Dashboard de Bodega
+        </h1>
+        <p class="text-muted">Bienvenido, {{ current_name }}</p>
+    </div>
+
+    <!-- Alertas de Stock Bajo -->
+    {% if productos_stock_bajo %}
+    <div class="alert alert-warning border-2 border-warning mb-4" role="alert">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle-fill me-3" style="font-size: 1.5rem;"></i>
+            <div>
+                <h5 class="mb-1">⚠️ Alerta de Stock Bajo</h5>
+                <p class="mb-0">Hay {{ productos_stock_bajo|length }} producto(s) con stock crítico. Requiere reorden inmediata.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <!-- Card Pedidos Aprobados -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #007bff;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Pendientes de Preparar</p>
+                            <h3 class="card-title text-primary fw-bold">{{ pedidos_aprobados|length }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-clipboard-check text-primary" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Por procesar</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Pedidos Preparando -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #17a2b8;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">En Preparación</p>
+                            <h3 class="card-title text-info fw-bold">{{ pedidos_preparando|length }}</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-hammer text-info" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">En proceso</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Productos en Stock -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #28a745;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Total Productos</p>
+                            <h3 class="card-title text-success fw-bold">{{ total_productos }}</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-box-seam text-success" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">En inventario</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Stock Bajo -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #dc3545;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Stock Crítico</p>
+                            <h3 class="card-title text-danger fw-bold">{{ productos_stock_bajo|length }}</h3>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-exclamation-circle text-danger" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Requiere reorden</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Productos con Stock Bajo -->
+    {% if productos_stock_bajo %}
+    <div class="card border-0 shadow-sm border-danger border-2 mb-4">
+        <div class="card-header bg-danger bg-opacity-10 border-danger">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-danger">
+                    <i class="bi bi-exclamation-circle me-2"></i>Productos con Stock Bajo
+                </h5>
+                <span class="badge bg-danger">{{ productos_stock_bajo|length }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-nowrap">Producto</th>
+                            <th class="text-nowrap">Stock Actual</th>
+                            <th class="text-nowrap">Precio</th>
+                            <th class="text-nowrap">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos_stock_bajo %}
+                        <tr class="table-danger">
+                            <td class="text-nowrap fw-bold">{{ producto['nombre'] }}</td>
+                            <td class="text-nowrap">
+                                <span class="badge bg-danger">{{ producto['stock'] }} unidades</span>
+                            </td>
+                            <td class="text-nowrap">${{ producto['precio']|int }}</td>
+                            <td class="text-nowrap">
+                                <span class="badge bg-warning text-dark">Reordenar</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Tabla de Pedidos Aprobados para Preparar -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-check me-2"></i>Pedidos Aprobados - Pendientes de Preparar
+                </h5>
+                <span class="badge bg-primary">{{ pedidos_aprobados|length }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if pedidos_aprobados %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-nowrap">#Pedido</th>
+                                <th class="text-nowrap">Cliente</th>
+                                <th class="text-nowrap">Monto</th>
+                                <th class="text-nowrap">Tipo Entrega</th>
+                                <th class="text-nowrap">Fecha Orden</th>
+                                <th class="text-nowrap">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in pedidos_aprobados %}
+                            <tr>
+                                <td class="text-nowrap fw-bold">#{{ pedido['id'] }}</td>
+                                <td class="text-nowrap">{{ pedido['cliente_nombre'] }}</td>
+                                <td class="text-nowrap fw-bold">${{ pedido['total']|int }}</td>
+                                <td class="text-nowrap">
+                                    {% if pedido['tipo_entrega'] == 'Despacho a domicilio' %}
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-truck"></i> Despacho
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">
+                                            <i class="bi bi-shop"></i> Retiro
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-nowrap text-muted small">{{ pedido['creado_en'][:10] }}</td>
+                                <td class="text-nowrap">
+                                    <div class="btn-group" role="group">
+                                        <!-- Ver Detalle -->
+                                        <a href="{{ url_for('pedido_detalle', pedido_id=pedido['id']) }}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        
+                                        <!-- Preparar -->
+                                        <form method="POST" action="{{ url_for('accion_bodega', pedido_id=pedido['id']) }}" 
+                                              class="d-inline" 
+                                              onsubmit="return confirm('¿Marcar como en preparación?');">
+                                            <input type="hidden" name="accion" value="preparar">
+                                            <button type="submit" class="btn btn-sm btn-info" title="Iniciar preparación">
+                                                <i class="bi bi-hammer"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-5 text-center">
+                    <i class="bi bi-check-circle text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3 mb-0">No hay pedidos aprobados pendientes de preparar</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tabla de Pedidos en Preparación -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-hourglass-split me-2"></i>Pedidos en Preparación - Listos para Despachar
+                </h5>
+                <span class="badge bg-info">{{ pedidos_preparando|length }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if pedidos_preparando %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-nowrap">#Pedido</th>
+                                <th class="text-nowrap">Cliente</th>
+                                <th class="text-nowrap">Monto</th>
+                                <th class="text-nowrap">Tipo Entrega</th>
+                                <th class="text-nowrap">Dirección</th>
+                                <th class="text-nowrap">Iniciado</th>
+                                <th class="text-nowrap">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in pedidos_preparando %}
+                            <tr>
+                                <td class="text-nowrap fw-bold">#{{ pedido['id'] }}</td>
+                                <td class="text-nowrap">{{ pedido['cliente_nombre'] }}</td>
+                                <td class="text-nowrap fw-bold">${{ pedido['total']|int }}</td>
+                                <td class="text-nowrap">
+                                    {% if pedido['tipo_entrega'] == 'Despacho a domicilio' %}
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-truck"></i> Despacho
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">
+                                            <i class="bi bi-shop"></i> Retiro
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-nowrap text-muted small">
+                                    {% if pedido['direccion_envio'] %}
+                                        {{ pedido['direccion_envio'][:30] }}...
+                                    {% else %}
+                                        <span class="text-secondary">En tienda</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-nowrap text-muted small">{{ pedido['actualizado_en'][:10] }}</td>
+                                <td class="text-nowrap">
+                                    <div class="btn-group" role="group">
+                                        <!-- Ver Detalle -->
+                                        <a href="{{ url_for('pedido_detalle', pedido_id=pedido['id']) }}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        
+                                        <!-- Despachar -->
+                                        <form method="POST" action="{{ url_for('accion_bodega', pedido_id=pedido['id']) }}" 
+                                              class="d-inline" 
+                                              onsubmit="return confirm('¿Marcar como despachado?');">
+                                            <input type="hidden" name="accion" value="despachar">
+                                            <button type="submit" class="btn btn-sm btn-success" title="Despachar pedido">
+                                                <i class="bi bi-truck"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-5 text-center">
+                    <i class="bi bi-check-circle text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3 mb-0">No hay pedidos en preparación</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- CSS para iconos Bootstrap -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<style>
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .btn-group {
+        display: flex;
+        gap: 0.25rem;
+    }
+    .alert-warning {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+</style>
+{% endblock %}

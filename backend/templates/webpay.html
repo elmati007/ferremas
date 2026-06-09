@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Simulación WebPay - FERREMAS{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0">Simulación WebPay</h4>
+                    <small class="text-muted">Procesa el pago de tu pedido con un paso seguro.</small>
+                </div>
+                <span class="badge bg-{{ order_status_badge(pedido['estado']) }}">{{ pedido['estado'] }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Número de Pedido</h6>
+                        <p class="fw-bold h5">#{{ pedido['id'] }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Monto Total</h6>
+                        <p class="fw-bold h5 text-success">${{ pedido['total'] }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Método de Pago</h6>
+                        <p class="fw-bold">{{ pedido['metodo_pago'] }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <h6 class="text-muted">Tipo de Entrega</h6>
+                        <p class="fw-bold">{{ pedido['tipo_entrega'] }}</p>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="mb-3">Resumen de Productos</h5>
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Precio</th>
+                                    <th>Cantidad</th>
+                                    <th>Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td>{{ item['nombre'] }}</td>
+                                    <td>${{ item['precio'] }}</td>
+                                    <td>{{ item['cantidad'] }}</td>
+                                    <td class="fw-bold">${{ item['subtotal'] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {% if pedido['estado'] == 'Pago Pendiente' %}
+                <form method="POST" action="{{ url_for('webpay', pedido_id=pedido['id']) }}">
+                    <div class="d-flex gap-2 flex-column flex-md-row">
+                        <button type="submit" name="accion" value="aprobar" class="btn btn-success w-100">Aprobar Pago</button>
+                        <button type="submit" name="accion" value="rechazar" class="btn btn-danger w-100">Rechazar Pago</button>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-secondary" role="alert">
+                    <p class="mb-2">Este pedido ya fue procesado en la simulación de pago.</p>
+                    <a href="{{ url_for('confirmacion_pedido', pedido_id=pedido['id']) }}" class="btn btn-primary">Ver Confirmación</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="text-center">
+            <a href="{{ url_for('carrito') }}" class="btn btn-outline-secondary">Volver al Carrito</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

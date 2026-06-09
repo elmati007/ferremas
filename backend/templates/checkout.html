@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% block title %}Confirmar Pedido - FERREMAS{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Revisar Productos</h3>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Producto</th>
+                                <th>Descripción</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in carrito %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="{{ url_for('static', filename='img/' + item['imagen']) }}" class="rounded" style="width: 70px; height: 70px; object-fit: cover;" alt="{{ item['nombre'] }}">
+                                        <span>{{ item['nombre'] }}</span>
+                                    </div>
+                                </td>
+                                <td>{{ item['descripcion'] }}</td>
+                                <td class="fw-bold">${{ item['precio'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">Detalles de Entrega y Pago</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('checkout') }}" id="checkoutForm">
+                    <!-- Método de Pago -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Método de Pago</label>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="metodo_pago" id="credito" value="Crédito" {% if request.form.get('metodo_pago') == 'Crédito' or not request.form.get('metodo_pago') %}checked{% endif %} required>
+                                    <label class="form-check-label" for="credito">
+                                        Tarjeta de Crédito
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="metodo_pago" id="debito" value="Débito" {% if request.form.get('metodo_pago') == 'Débito' %}checked{% endif %} required>
+                                    <label class="form-check-label" for="debito">
+                                        Tarjeta de Débito
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="metodo_pago" id="transferencia" value="Transferencia" {% if request.form.get('metodo_pago') == 'Transferencia' %}checked{% endif %} required>
+                                    <label class="form-check-label" for="transferencia">
+                                        Transferencia Bancaria
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Entrega -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Tipo de Entrega</label>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_entrega" id="retiro" value="Retiro en tienda" {% if request.form.get('tipo_entrega') == 'Retiro en tienda' or not request.form.get('tipo_entrega') %}checked{% endif %} onchange="toggleDireccion()" required>
+                                    <label class="form-check-label" for="retiro">
+                                        Retiro en Tienda
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tipo_entrega" id="domicilio" value="Despacho a domicilio" {% if request.form.get('tipo_entrega') == 'Despacho a domicilio' %}checked{% endif %} onchange="toggleDireccion()" required>
+                                    <label class="form-check-label" for="domicilio">
+                                        Despacho a Domicilio
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dirección de Envío (Condicional) -->
+                    <div class="mb-4" id="direccionDiv" style="display: none;">
+                        <label for="direccion" class="form-label fw-bold">Dirección de Envío</label>
+                        <textarea class="form-control" id="direccion" name="direccion_envio" rows="3" placeholder="Calle, número, departamento, ciudad..." value="{{ request.form.get('direccion_envio', '') }}"></textarea>
+                        <small class="text-muted">Proporciona detalles completos para una entrega exitosa</small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('carrito') }}" class="btn btn-secondary">Volver al Carrito</a>
+                        <button type="submit" class="btn btn-success">Ir a WebPay</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen Lateral -->
+    <div class="col-lg-4">
+        <div class="card shadow-sm sticky-top" style="top: 20px;">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Resumen del Pedido</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Subtotal ({{ carrito|length }} producto{{ 's' if carrito|length != 1 else '' }})</h6>
+                    <p class="h5 mb-0">${{ total }}</p>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <h6 class="text-muted">Envío</h6>
+                    <p class="h6 mb-0">Gratis</p>
+                </div>
+                <hr>
+                <div>
+                    <h5>Total</h5>
+                    <p class="h4 text-success fw-bold">${{ total }}</p>
+                </div>
+                <div class="alert alert-info alert-sm" role="alert">
+                    <small>Al confirmar el pedido, pasarás a una página de confirmación con el número de seguimiento.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleDireccion() {
+    const domicilio = document.getElementById('domicilio').checked;
+    const direccionDiv = document.getElementById('direccionDiv');
+    const direccionInput = document.getElementById('direccion');
+    
+    if (domicilio) {
+        direccionDiv.style.display = 'block';
+        direccionInput.setAttribute('required', 'required');
+    } else {
+        direccionDiv.style.display = 'none';
+        direccionInput.removeAttribute('required');
+        direccionInput.value = '';
+    }
+}
+
+// Ejecutar al cargar
+document.addEventListener('DOMContentLoaded', toggleDireccion);
+</script>
+{% endblock %}

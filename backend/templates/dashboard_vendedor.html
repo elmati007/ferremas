@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Vendedor - FERREMAS{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="mb-4">
+        <h1 class="h2 d-flex align-items-center">
+            <i class="bi bi-graph-up me-3" style="font-size: 2rem;"></i>
+            Dashboard de Ventas
+        </h1>
+        <p class="text-muted">Bienvenido, {{ current_name }}</p>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row mb-4">
+        <!-- Card Pedidos Pendientes -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #ffc107;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Pedidos Pendientes</p>
+                            <h3 class="card-title text-warning fw-bold">{{ pedidos_pendientes|length }}</h3>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-hourglass-split text-warning" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Requieren aprobación</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Pedidos Aprobados Hoy -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #28a745;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Aprobados Hoy</p>
+                            <h3 class="card-title text-success fw-bold">{{ aprobados_hoy|length }}</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-check-circle text-success" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">En proceso</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Total Ventas Pendientes -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #17a2b8;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Monto Pendiente</p>
+                            <h3 class="card-title text-info fw-bold">${{ total_pendiente|int }}</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-cash-coin text-info" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Por procesar</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Total Aprobados Hoy -->
+        <div class="col-md-6 col-lg-3 mb-3">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 4px solid #6f42c1;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <p class="text-muted small mb-1">Ingresos Hoy</p>
+                            <h3 class="card-title text-primary fw-bold">${{ total_aprobados_hoy|int }}</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="bi bi-graph-up-arrow text-primary" style="font-size: 1.5rem;"></i>
+                        </div>
+                    </div>
+                    <small class="text-muted">Aprobado</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de Pedidos Pendientes -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-table me-2"></i>Pedidos Pendientes de Aprobación
+                </h5>
+                <span class="badge bg-warning">{{ pedidos_pendientes|length }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if pedidos_pendientes %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-nowrap">#Pedido</th>
+                                <th class="text-nowrap">Cliente</th>
+                                <th class="text-nowrap">Monto</th>
+                                <th class="text-nowrap">Método Pago</th>
+                                <th class="text-nowrap">Entrega</th>
+                                <th class="text-nowrap">Fecha</th>
+                                <th class="text-nowrap">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in pedidos_pendientes %}
+                            <tr>
+                                <td class="text-nowrap fw-bold">#{{ pedido['id'] }}</td>
+                                <td class="text-nowrap">{{ pedido['cliente_nombre'] }}</td>
+                                <td class="text-nowrap fw-bold">${{ pedido['total']|int }}</td>
+                                <td class="text-nowrap">
+                                    <span class="badge bg-secondary">{{ pedido['metodo_pago'] }}</span>
+                                </td>
+                                <td class="text-nowrap">
+                                    {% if pedido['tipo_entrega'] == 'Despacho a domicilio' %}
+                                        <span class="badge bg-info">
+                                            <i class="bi bi-truck"></i> Despacho
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-light text-dark">
+                                            <i class="bi bi-shop"></i> Retiro
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-nowrap text-muted small">{{ pedido['creado_en'][:10] }}</td>
+                                <td class="text-nowrap">
+                                    <div class="btn-group" role="group">
+                                        <!-- Ver Detalle -->
+                                        <a href="{{ url_for('pedido_detalle', pedido_id=pedido['id']) }}" 
+                                           class="btn btn-sm btn-outline-primary" 
+                                           title="Ver detalles">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        
+                                        <!-- Aprobar -->
+                                        <form method="POST" action="{{ url_for('accion_vendedor', pedido_id=pedido['id']) }}" 
+                                              class="d-inline" 
+                                              onsubmit="return confirm('¿Aprobar este pedido?');">
+                                            <input type="hidden" name="accion" value="aprobar">
+                                            <button type="submit" class="btn btn-sm btn-success" title="Aprobar pedido">
+                                                <i class="bi bi-check-circle"></i>
+                                            </button>
+                                        </form>
+                                        
+                                        <!-- Rechazar -->
+                                        <form method="POST" action="{{ url_for('accion_vendedor', pedido_id=pedido['id']) }}" 
+                                              class="d-inline" 
+                                              onsubmit="return confirm('¿Rechazar este pedido?');">
+                                            <input type="hidden" name="accion" value="rechazar">
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Rechazar pedido">
+                                                <i class="bi bi-x-circle"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-5 text-center">
+                    <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3 mb-0">No hay pedidos pendientes en este momento</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tabla de Pedidos Aprobados -->
+    <div class="card border-0 shadow-sm mt-4">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-check-all me-2"></i>Pedidos Aprobados (Últimos 10)
+                </h5>
+                <span class="badge bg-success">{{ aprobados_hoy|length }}</span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if aprobados_hoy %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-nowrap">#Pedido</th>
+                                <th class="text-nowrap">Cliente</th>
+                                <th class="text-nowrap">Monto</th>
+                                <th class="text-nowrap">Estado</th>
+                                <th class="text-nowrap">Fecha Aprobación</th>
+                                <th class="text-nowrap">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pedido in aprobados_hoy %}
+                            <tr>
+                                <td class="text-nowrap fw-bold">#{{ pedido['id'] }}</td>
+                                <td class="text-nowrap">{{ pedido['cliente_nombre'] }}</td>
+                                <td class="text-nowrap fw-bold">${{ pedido['total']|int }}</td>
+                                <td class="text-nowrap">
+                                    <span class="badge bg-success">
+                                        <i class="bi bi-check-circle-fill"></i> {{ pedido['estado'] }}
+                                    </span>
+                                </td>
+                                <td class="text-nowrap text-muted small">{{ pedido['actualizado_en'][:10] }}</td>
+                                <td class="text-nowrap">
+                                    <a href="{{ url_for('pedido_detalle', pedido_id=pedido['id']) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-eye"></i> Ver
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-5 text-center">
+                    <i class="bi bi-check-circle text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-3 mb-0">No hay pedidos aprobados hoy</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- CSS para iconos Bootstrap -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+<style>
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    .btn-group {
+        display: flex;
+        gap: 0.25rem;
+    }
+</style>
+{% endblock %}
